@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🏎️ Моя гонка</title>
+<title>Моя гонка 🏎️</title>
 
 <style>
 * {
@@ -19,32 +19,31 @@ body {
 }
 
 h1 {
-    margin: 15px 0 5px;
+    margin: 12px 0 5px;
 }
 
 #info {
     font-size: 20px;
-    margin: 10px;
+    margin: 8px;
 }
 
 canvas {
-    display: block;
-    margin: auto;
     width: 95vw;
     max-width: 400px;
     height: auto;
-    background: #333;
     border: 4px solid white;
+    background: #333;
+    display: block;
+    margin: auto;
 }
 
 button {
     border: none;
     border-radius: 12px;
-    padding: 12px 25px;
-    margin: 7px;
-    font-size: 20px;
+    padding: 12px 22px;
+    margin: 6px;
+    font-size: 18px;
     font-weight: bold;
-    cursor: pointer;
 }
 
 #start {
@@ -55,9 +54,9 @@ button {
 .control {
     background: #2196f3;
     color: white;
-    width: 100px;
-    height: 60px;
-    font-size: 28px;
+    width: 90px;
+    height: 55px;
+    font-size: 25px;
 }
 </style>
 </head>
@@ -68,36 +67,35 @@ button {
 
 <div id="info">
     Очки: <span id="score">0</span>
-    &nbsp; | &nbsp;
+    |
     Скорость: <span id="speed">1</span>
 </div>
 
 <canvas id="game" width="400" height="600"></canvas>
 
-<button id="start">▶ НАЧАТЬ ИГРУ</button>
+<button id="start" onclick="startGame()">▶ НАЧАТЬ ИГРУ</button>
 
 <div>
-    <button class="control" id="left">⬅️</button>
-    <button class="control" id="right">➡️</button>
+    <button class="control" onclick="moveLeft()">⬅️</button>
+    <button class="control" onclick="moveRight()">➡️</button>
 </div>
 
 <script>
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
-const scoreText = document.getElementById("score");
-const speedText = document.getElementById("speed");
-const startButton = document.getElementById("start");
 
 let player;
 let enemies = [];
 let score = 0;
-let speed = 4;
-let running = false;
-let roadLine = 0;
-let animationId;
+let gameSpeed = 4;
+let gameRunning = false;
+let roadOffset = 0;
+let animation;
+let targetX = 180;
 
 function resetGame() {
+
     player = {
         x: 180,
         y: 500,
@@ -105,47 +103,55 @@ function resetGame() {
         height: 70
     };
 
+    targetX = 180;
+
     enemies = [];
     score = 0;
-    speed = 4;
-    roadLine = 0;
+    gameSpeed = 4;
+    roadOffset = 0;
 
-    scoreText.textContent = "0";
-    speedText.textContent = "1";
+    document.getElementById("score").textContent = "0";
+    document.getElementById("speed").textContent = "1";
 }
 
 function drawRoad() {
-    // Трава
+
     ctx.fillStyle = "#16802b";
     ctx.fillRect(0, 0, 400, 600);
 
-    // Дорога
     ctx.fillStyle = "#444";
     ctx.fillRect(50, 0, 300, 600);
 
-    // Края
     ctx.fillStyle = "white";
+
     ctx.fillRect(50, 0, 5, 600);
     ctx.fillRect(345, 0, 5, 600);
 
-    // Разметка
     ctx.fillStyle = "white";
 
-    roadLine += speed;
+    roadOffset += gameSpeed;
 
-    if (roadLine >= 80) {
-        roadLine = 0;
+    if (roadOffset > 80) {
+        roadOffset = 0;
     }
 
-    for (let y = -80 + roadLine; y < 600; y += 80) {
-        ctx.fillRect(145, y, 8, 45);
-        ctx.fillRect(247, y, 8, 45);
+    for (
+        let y = -80 + roadOffset;
+        y < 600;
+        y += 80
+    ) {
+
+        ctx.fillRect(108, y, 8, 45);
+        ctx.fillRect(166, y, 8, 45);
+        ctx.fillRect(224, y, 8, 45);
+        ctx.fillRect(282, y, 8, 45);
     }
 }
 
 function drawCar(car, color) {
-    // Корпус
+
     ctx.fillStyle = color;
+
     ctx.fillRect(
         car.x,
         car.y,
@@ -153,8 +159,8 @@ function drawCar(car, color) {
         car.height
     );
 
-    // Стекло
     ctx.fillStyle = "#87ceeb";
+
     ctx.fillRect(
         car.x + 7,
         car.y + 10,
@@ -162,34 +168,78 @@ function drawCar(car, color) {
         20
     );
 
-    // Колёса
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "black";
 
-    ctx.fillRect(car.x - 5, car.y + 10, 5, 18);
-    ctx.fillRect(car.x + 40, car.y + 10, 5, 18);
+    ctx.fillRect(
+        car.x - 5,
+        car.y + 10,
+        5,
+        18
+    );
 
-    ctx.fillRect(car.x - 5, car.y + 45, 5, 18);
-    ctx.fillRect(car.x + 40, car.y + 45, 5, 18);
+    ctx.fillRect(
+        car.x + 40,
+        car.y + 10,
+        5,
+        18
+    );
+
+    ctx.fillRect(
+        car.x - 5,
+        car.y + 45,
+        5,
+        18
+    );
+
+    ctx.fillRect(
+        car.x + 40,
+        car.y + 45,
+        5,
+        18
+    );
 }
 
 function createEnemy() {
-    const lanes = [75, 128, 180, 232, 285];
+
+    const lanes = [
+        58,
+        116,
+        174,
+        232,
+        290
+    ];
 
     const lane =
-        lanes[Math.floor(Math.random() * lanes.length)];
+        Math.floor(Math.random() * lanes.length);
+
+    const x = lanes[lane];
+
+    for (let enemy of enemies) {
+
+        if (
+            enemy.y < 180 &&
+            enemy.x === x
+        ) {
+            return;
+        }
+    }
 
     enemies.push({
-        x: lane,
+
+        x: x,
         y: -80,
         width: 40,
         height: 70,
-        color: Math.random() > 0.5
+
+        color:
+            Math.random() > 0.5
             ? "#2196f3"
             : "#ffeb3b"
     });
 }
 
 function collision(a, b) {
+
     return (
         a.x < b.x + b.width &&
         a.x + a.width > b.x &&
@@ -199,27 +249,37 @@ function collision(a, b) {
 }
 
 function moveEnemies() {
-    for (let enemy of enemies) {
-        enemy.y += speed;
 
-        drawCar(enemy, enemy.color);
+    for (let enemy of enemies) {
+
+        enemy.y += gameSpeed;
+
+        drawCar(
+            enemy,
+            enemy.color
+        );
 
         if (collision(player, enemy)) {
             gameOver();
-            return;
         }
     }
 
     enemies = enemies.filter(enemy => {
+
         if (enemy.y > 600) {
+
             score++;
 
-            scoreText.textContent = score;
+            document.getElementById("score")
+                .textContent = score;
 
             if (score % 5 === 0) {
-                speed += 0.5;
-                speedText.textContent =
-                    Math.floor(speed / 2);
+
+                gameSpeed += 0.5;
+
+                document.getElementById("speed")
+                    .textContent =
+                    Math.floor(gameSpeed / 2);
             }
 
             return false;
@@ -228,88 +288,117 @@ function moveEnemies() {
         return true;
     });
 }
+
 function moveLeft() {
-    if (!running) return;
 
-    player.x -= 35;
+    if (!gameRunning) return;
 
-    if (player.x < 55) {
-        player.x = 55;
+    targetX -= 35;
+
+    if (targetX < 55) {
+        targetX = 55;
     }
 }
 
 function moveRight() {
-    if (!running) return;
 
-    player.x += 35;
+    if (!gameRunning) return;
 
-    if (player.x > 305) {
-        player.x = 305;
+    targetX += 35;
+
+    if (targetX > 305) {
+        targetX = 305;
     }
+}
+
+function smoothPlayerMovement() {
+
+    player.x +=
+        (targetX - player.x) * 0.12;
 }
 
 function gameLoop() {
-    if (!running) return;
 
-    ctx.clearRect(0, 0, 400, 600);
+    if (!gameRunning) return;
+
+    ctx.clearRect(
+        0,
+        0,
+        400,
+        600
+    );
 
     drawRoad();
 
-    drawCar(player, "#f44336");
+    smoothPlayerMovement();
+
+    drawCar(
+        player,
+        "#f44336"
+    );
 
     moveEnemies();
 
-    if (Math.random() < 0.025) {
+    if (Math.random() < 0.018) {
         createEnemy();
     }
 
-    animationId = requestAnimationFrame(gameLoop);
+    animation =
+        requestAnimationFrame(gameLoop);
 }
 
 function startGame() {
-    cancelAnimationFrame(animationId);
+
+    cancelAnimationFrame(animation);
 
     resetGame();
 
-    running = true;
+    gameRunning = true;
 
-    startButton.textContent = "🔄 ЗАНОВО";
+    document.getElementById("start")
+        .textContent = "🔄 ЗАНОВО";
 
     gameLoop();
 }
 
 function gameOver() {
-    running = false;
 
-    cancelAnimationFrame(animationId);
+    gameRunning = false;
+
+    cancelAnimationFrame(animation);
 
     setTimeout(() => {
+
         alert(
             "💥 АВАРИЯ!\n\n" +
             "Твои очки: " + score
         );
+
     }, 100);
 }
 
-startButton.addEventListener("click", startGame);
+document.addEventListener(
+    "keydown",
+    function(event) {
 
-document.getElementById("left")
-    .addEventListener("click", moveLeft);
+        if (
+            event.key === "ArrowLeft" ||
+            event.key === "a"
+        ) {
+            moveLeft();
+        }
 
-document.getElementById("right")
-    .addEventListener("click", moveRight);
-
-document.addEventListener("keydown", function(event) {
-    if (event.key === "ArrowLeft" || event.key === "a") {
-        moveLeft();
+        if (
+            event.key === "ArrowRight" ||
+            event.key === "d"
+        ) {
+            moveRight();
+        }
     }
-
-    if (event.key === "ArrowRight" || event.key === "d") {
-        moveRight();
-    }
-});
+);
 
 resetGame();
+
 </script>
 
 </body>
