@@ -47,6 +47,10 @@ button {
     cursor: pointer;
 }
 
+button:hover {
+    background: #ddd;
+}
+
 #results {
     max-width: 800px;
     margin: 30px auto;
@@ -65,9 +69,9 @@ button {
     margin-top: 0;
 }
 
-video {
-    width: 100%;
-    max-width: 700px;
+.result img {
+    max-width: 100%;
+    width: 500px;
     border-radius: 10px;
 }
 </style>
@@ -80,73 +84,48 @@ video {
 <h1>ЭТО МОЙ ПЕРВЫЙ САЙТ</h1>
 
 <div class="search">
-<input id="searchInput" type="text" placeholder="Что хотите найти?">
-<button onclick="search()">Поиск</button>
+    <input id="searchInput" type="text" placeholder="Что хотите найти?">
+    <button onclick="search()">Поиск</button>
 </div>
 
 </header>
-<img src="pxoto jpg" width="500">
+
+
 <div id="results"></div>
+
 
 <script>
 
 const pages = [
     {
-    title: "Моё фото",
-    text: "Фотография 6022954",
-    image: "6022954_15.jpg"
-},
-    {
-        title: "Моё первое видео",
-        text: "Первое видео на моём сайте.",
-        video: "video.mp4"
-    },
-
-    {
-        title: "Второе видео",
-        text: "Ещё одно видео.",
-        video: "video2.mp4"
+        title: "Моё фото",
+        text: "Фотография 6022954",
+        image: "6022954_15.jpg"
     }
 ];
 
+
 function showVideos(list) {
-    const results = document.getElementById("results");
-
-    results.innerHTML = list.map(page => 
-        <div class="result">
-            <h2>${page.title}</h2>
-            <p>${page.text}</p>
-
-            ${page.video ? 
-                <video controls>
-                    <source src="${page.video}" type="video/mp4">
-                </video>
-             : ""}
-
-            ${page.image ? 
-                <img src="${page.image}" width="500">
-             : ""}
-        </div>
-    ).join("");
-}
 
     const results = document.getElementById("results");
 
-    results.innerHTML = list.map(page => 
+    results.innerHTML = list.map(page => `
+
         <div class="result">
 
             <h2>${page.title}</h2>
 
             <p>${page.text}</p>
 
-            <video controls>
-                <source src="${page.video}" type="video/mp4">
-                Ваш браузер не поддерживает видео.
-            </video>
+            ${page.image ? `
+                <img src="${page.image}" alt="${page.title}">
+            ` : ""}
 
         </div>
-    ).join("");
+
+    `).join("");
 }
+
 
 function search() {
 
@@ -156,34 +135,42 @@ function search() {
         .toLowerCase()
         .trim();
 
+
     if (query === "") {
         showVideos(pages);
         return;
     }
+
 
     const found = pages.filter(page =>
         page.title.toLowerCase().includes(query) ||
         page.text.toLowerCase().includes(query)
     );
 
+
     if (found.length === 0) {
+
         document.getElementById("results").innerHTML =
             "<h2>Ничего не найдено</h2>";
+
         return;
     }
+
 
     showVideos(found);
 }
 
+
 document
-.getElementById("searchInput")
-.addEventListener("keydown", function(event) {
+    .getElementById("searchInput")
+    .addEventListener("keydown", function(event) {
 
-    if (event.key === "Enter") {
-        search();
-    }
+        if (event.key === "Enter") {
+            search();
+        }
 
-});
+    });
+
 
 showVideos(pages);
 
