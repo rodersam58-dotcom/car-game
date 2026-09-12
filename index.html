@@ -85,12 +85,17 @@ video {
 </div>
 
 </header>
-
+<img src="photo.jpg" width="500">
 <div id="results"></div>
 
 <script>
 
 const pages = [
+    {
+    title: "Моё фото",
+    text: "Фотография 6022954",
+    image: "6022954_15.jpg"
+},
     {
         title: "Моё первое видео",
         text: "Первое видео на моём сайте.",
@@ -105,6 +110,25 @@ const pages = [
 ];
 
 function showVideos(list) {
+    const results = document.getElementById("results");
+
+    results.innerHTML = list.map(page => 
+        <div class="result">
+            <h2>${page.title}</h2>
+            <p>${page.text}</p>
+
+            ${page.video ? 
+                <video controls>
+                    <source src="${page.video}" type="video/mp4">
+                </video>
+             : ""}
+
+            ${page.image ? 
+                <img src="${page.image}" width="500">
+             : ""}
+        </div>
+    ).join("");
+}
 
     const results = document.getElementById("results");
 
