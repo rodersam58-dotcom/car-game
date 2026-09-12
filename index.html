@@ -1,180 +1,236 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ЭТО МОЙ ПЕРВЫЙ САЙТ</title>
+    <title>ЭТО МОЙ ПЕРВЫЙ САЙТ</title>
 
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
-    text-align: center;
-}
+    <style>
 
-header {
-    background: #222;
-    color: white;
-    padding: 30px 15px;
-}
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            text-align: center;
+        }
 
-h1 {
-    margin: 0 0 20px;
-}
+        header {
+            background: #222;
+            color: white;
+            padding: 30px 15px;
+        }
 
-.search {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
+        h1 {
+            margin: 0 0 20px;
+        }
 
-input {
-    width: 60%;
-    max-width: 500px;
-    padding: 14px;
-    font-size: 17px;
-    border: none;
-    border-radius: 8px;
-}
+        .search {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
 
-button {
-    padding: 14px 20px;
-    font-size: 17px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
+        input {
+            width: 60%;
+            max-width: 500px;
+            padding: 14px;
+            font-size: 17px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+        }
 
-button:hover {
-    background: #ddd;
-}
+        button {
+            padding: 14px 20px;
+            font-size: 17px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
 
-#results {
-    max-width: 800px;
-    margin: 30px auto;
-    padding: 0 15px;
-}
+        button:hover {
+            background: #ddd;
+        }
 
-.result {
-    background: white;
-    margin: 20px 0;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+        #results {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
 
-.result h2 {
-    margin-top: 0;
-}
+        .result {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
 
-.result img {
-    max-width: 100%;
-    width: 500px;
-    border-radius: 10px;
-}
-</style>
+        .result h2 {
+            margin-top: 0;
+        }
+
+        .result img {
+            max-width: 100%;
+            width: 500px;
+            border-radius: 10px;
+        }
+
+        .not-found {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-<header>
+    <header>
 
-<h1>ЭТО МОЙ ПЕРВЫЙ САЙТ</h1>
+        <h1>ЭТО МОЙ ПЕРВЫЙ САЙТ</h1>
 
-<div class="search">
-    <input id="searchInput" type="text" placeholder="Что хотите найти?">
-    <button onclick="search()">Поиск</button>
-</div>
+        <div class="search">
 
-</header>
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="Что хотите найти?"
+            >
 
-
-<div id="results"></div>
-
-
-<script>
-
-const pages = [
-    {
-        title: "Моё фото",
-        text: "Фотография 6022954",
-        image: "6022954_15.jpg"
-    }
-];
-
-
-function showVideos(list) {
-
-    const results = document.getElementById("results");
-
-    results.innerHTML = list.map(page => `
-
-        <div class="result">
-
-            <h2>${page.title}</h2>
-
-            <p>${page.text}</p>
-
-            ${page.image ? `
-                <img src="${page.image}" alt="${page.title}">
-            ` : ""}
+            <button onclick="search()">
+                Поиск
+            </button>
 
         </div>
 
-    `).join("");
-}
+    </header>
 
 
-function search() {
-
-    const query = document
-        .getElementById("searchInput")
-        .value
-        .toLowerCase()
-        .trim();
+    <div id="results"></div>
 
 
-    if (query === "") {
-        showVideos(pages);
-        return;
-    }
+    <script>
+
+        // Информация о фотографиях
+        const pages = [
+
+            {
+                title: "Моё фото",
+                text: "Фотография 6022954",
+                image: "6022954_15.jpg"
+            }
+
+        ];
 
 
-    const found = pages.filter(page =>
-        page.title.toLowerCase().includes(query) ||
-        page.text.toLowerCase().includes(query)
-    );
+        // Показываем найденные фотографии
+        function showResults(list) {
 
+            const results = document.getElementById("results");
 
-    if (found.length === 0) {
+            results.innerHTML = list.map(page => `
 
-        document.getElementById("results").innerHTML =
-            "<h2>Ничего не найдено</h2>";
+                <div class="result">
 
-        return;
-    }
+                    <h2>${page.title}</h2>
 
+                    <p>${page.text}</p>
 
-    showVideos(found);
-}
+                    <img
+                        src="${page.image}"
+                        alt="${page.title}"
+                    >
 
+                </div>
 
-document
-    .getElementById("searchInput")
-    .addEventListener("keydown", function(event) {
+            `).join("");
 
-        if (event.key === "Enter") {
-            search();
         }
 
-    });
+
+        // Функция поиска
+        function search() {
+
+            const query = document
+                .getElementById("searchInput")
+                .value
+                .toLowerCase()
+                .trim();
 
 
-showVideos(pages);
+            // Если поле пустое
+            if (query === "") {
 
-</script>
+                document.getElementById("results").innerHTML = "";
+
+                return;
+
+            }
+
+
+            // Ищем по названию и описанию
+            const found = pages.filter(page =>
+
+                page.title
+                    .toLowerCase()
+                    .includes(query)
+
+                ||
+
+                page.text
+                    .toLowerCase()
+                    .includes(query)
+
+            );
+
+
+            // Если ничего не найдено
+            if (found.length === 0) {
+
+                document.getElementById("results").innerHTML = `
+
+                    <div class="not-found">
+
+                        <h2>Ничего не найдено</h2>
+
+                        <p>Попробуйте изменить запрос.</p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            // Показываем найденное
+            showResults(found);
+
+        }
+
+
+        // Поиск при нажатии Enter
+        document
+            .getElementById("searchInput")
+            .addEventListener("keydown", function(event) {
+
+                if (event.key === "Enter") {
+
+                    search();
+
+                }
+
+            });
+
+    </script>
 
 </body>
+
 </html>
