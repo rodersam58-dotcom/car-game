@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -9,12 +10,19 @@
 
     <style>
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             background: #f2f2f2;
             text-align: center;
+            color: #222;
         }
+
+        /* Верхняя часть сайта */
 
         header {
             background: #222;
@@ -24,12 +32,14 @@
 
         h1 {
             margin: 0 0 20px;
+            font-size: 30px;
         }
 
         .search {
             display: flex;
             justify-content: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         input {
@@ -48,14 +58,27 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            transition: 0.2s;
         }
 
         button:hover {
             background: #ddd;
         }
 
+        .all-button {
+            margin-top: 15px;
+            background: #444;
+            color: white;
+        }
+
+        .all-button:hover {
+            background: #666;
+        }
+
+        /* Результаты */
+
         #results {
-            max-width: 800px;
+            max-width: 900px;
             margin: 30px auto;
             padding: 0 15px;
         }
@@ -64,24 +87,83 @@
             background: white;
             margin: 20px 0;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            animation: appear 0.3s ease;
         }
 
         .result h2 {
             margin-top: 0;
+            font-size: 24px;
         }
+
+        .result p {
+            color: #555;
+            font-size: 16px;
+        }
+
+        /* Фотографии */
 
         .result img {
             max-width: 100%;
-            width: 500px;
+            width: 600px;
             border-radius: 10px;
+            margin-top: 10px;
         }
+
+        /* Видео */
+
+        .result video {
+            max-width: 100%;
+            width: 600px;
+            border-radius: 10px;
+            margin-top: 10px;
+            background: black;
+        }
+
+        /* Если ничего не найдено */
 
         .not-found {
             background: white;
             padding: 30px;
             border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Анимация появления */
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Адаптация для телефона */
+
+        @media (max-width: 600px) {
+
+            h1 {
+                font-size: 23px;
+            }
+
+            input {
+                width: 100%;
+            }
+
+            button {
+                width: auto;
+            }
+
+            .result {
+                padding: 15px;
+            }
+
         }
 
     </style>
@@ -109,6 +191,11 @@
 
         </div>
 
+
+        <button class="all-button" onclick="showAll()">
+            Показать все фотографии и видео
+        </button>
+
     </header>
 
 
@@ -117,34 +204,74 @@
 
     <script>
 
-        // Информация о фотографиях
-       const pages = [
+        /*
+        =====================================================
+        БАЗА ДАННЫХ САЙТА
+        =====================================================
 
-    {
-        title: "Моё фото",
-        text: "Фотография 6022954",
-        image: "6022954_15.jpg"
-    },
+        Здесь добавляются все фотографии и видео.
 
-    {
-        title: "Моё первое видео",
-        text: "Видео с прогулки",
-        video: "video1.mp4"
-    },
+        Для фотографии используй:
+        image: "название-файла.jpg"
 
-    {
-        title: "Второе видео",
-        text: "Красивое видео",
-        video: "video2.mp4"
-    }
+        Для видео используй:
+        video: "название-файла.mp4"
 
-];
+        Можно добавлять сколько угодно объектов.
+        */
 
 
-        // Показываем найденные фотографии
+        const pages = [
+
+            // ФОТОГРАФИЯ №1
+
+            {
+                title: "Моё фото",
+                text: "Фотография 6022954",
+                image: "6022954_15.jpg"
+            },
+
+
+            // ВИДЕО №1
+
+            {
+                title: "Моё первое видео",
+                text: "Видео с прогулки",
+                video: "video1.mp4"
+            },
+
+
+            // ВИДЕО №2
+
+            {
+                title: "Моё второе видео",
+                text: "Красивое видео",
+                video: "video2.mp4"
+            },
+
+
+            // ЕЩЁ ОДНА ФОТОГРАФИЯ
+
+            {
+                title: "Фотография с путешествия",
+                text: "Фото из поездки",
+                image: "photo2.jpg"
+            }
+
+        ];
+
+
+        /*
+        =====================================================
+        ФУНКЦИЯ ПОКАЗА РЕЗУЛЬТАТОВ
+        =====================================================
+        */
+
+
         function showResults(list) {
 
             const results = document.getElementById("results");
+
 
             results.innerHTML = list.map(page => `
 
@@ -154,10 +281,46 @@
 
                     <p>${page.text}</p>
 
-                    <img
-                        src="${page.image}"
-                        alt="${page.title}"
-                    >
+
+                    ${
+                        page.image
+                        ?
+
+                        `
+                        <img
+                            src="${page.image}"
+                            alt="${page.title}"
+                            onerror="this.style.display='none'"
+                        >
+                        `
+
+                        :
+
+                        ""
+                    }
+
+
+                    ${
+                        page.video
+                        ?
+
+                        `
+                        <video controls preload="metadata">
+
+                            <source
+                                src="${page.video}"
+                                type="video/mp4"
+                            >
+
+                            Ваш браузер не поддерживает воспроизведение видео.
+
+                        </video>
+                        `
+
+                        :
+
+                        ""
+                    }
 
                 </div>
 
@@ -166,7 +329,27 @@
         }
 
 
-        // Функция поиска
+        /*
+        =====================================================
+        ПОКАЗАТЬ ВСЕ ФАЙЛЫ
+        =====================================================
+        */
+
+
+        function showAll() {
+
+            showResults(pages);
+
+        }
+
+
+        /*
+        =====================================================
+        ФУНКЦИЯ ПОИСКА
+        =====================================================
+        */
+
+
         function search() {
 
             const query = document
@@ -176,7 +359,8 @@
                 .trim();
 
 
-            // Если поле пустое
+            // Если пользователь ничего не ввёл
+
             if (query === "") {
 
                 document.getElementById("results").innerHTML = "";
@@ -186,23 +370,26 @@
             }
 
 
-            // Ищем по названию и описанию
+            /*
+            Ищем одновременно:
+            - по названию;
+            - по описанию.
+            */
+
+
             const found = pages.filter(page =>
 
-                page.title
-                    .toLowerCase()
-                    .includes(query)
+                page.title.toLowerCase().includes(query)
 
                 ||
 
-                page.text
-                    .toLowerCase()
-                    .includes(query)
+                page.text.toLowerCase().includes(query)
 
             );
 
 
             // Если ничего не найдено
+
             if (found.length === 0) {
 
                 document.getElementById("results").innerHTML = `
@@ -211,7 +398,7 @@
 
                         <h2>Ничего не найдено</h2>
 
-                        <p>Попробуйте изменить запрос.</p>
+                        <p>Попробуйте изменить поисковый запрос.</p>
 
                     </div>
 
@@ -222,13 +409,20 @@
             }
 
 
-            // Показываем найденное
+            // Показываем найденные результаты
+
             showResults(found);
 
         }
 
 
-        // Поиск при нажатии Enter
+        /*
+        =====================================================
+        ПОИСК ПРИ НАЖАТИИ ENTER
+        =====================================================
+        */
+
+
         document
             .getElementById("searchInput")
             .addEventListener("keydown", function(event) {
@@ -241,8 +435,10 @@
 
             });
 
+
     </script>
 
 </body>
 
 </html>
+```
